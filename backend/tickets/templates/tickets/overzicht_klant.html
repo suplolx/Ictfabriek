@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block body %}
+
+<form class="search-form" method="POST">
+    {% csrf_token %}
+    <p>
+        <label for="{{ search_form.klant_voornaam.id_for_label }}">Voornaam:</label>
+        {{ search_form.klant_voornaam }}
+    </p>
+    <p>
+        <label for="{{ search_form.klant_achternaam.id_for_label }}">Achternaam:</label>
+        {{ search_form.klant_achternaam }}
+    </p>
+    <p>
+        <label for="{{ search_form.klant_postcode.id_for_label }}">Postcode:</label>
+        {{ search_form.klant_postcode }}
+    </p>
+    <p>
+        <label for="{{ search_form.klant_woonplaats.id_for_label }}">Woonplaats:</label>
+        {{ search_form.klant_woonplaats }}
+    </p> 
+    <input class="primary-btn-invert btn-medium" type='submit' value="Zoeken" />
+</form>
+
+<div class="overzicht-wrapper">
+    <table class="overzicht-table">
+        <thead>
+            <th>Klantnummer</th>
+            <th>Voornaam</th>
+            <th>Achternaam</th>
+            <th>Telefoonnummer</th>
+            <th>Aantal tickets</th>
+        </thead>
+        <tbody>
+            {% if results %}
+                {% for result in results %}
+                <tr onclick="window.location=&quot;{% url 'tickets:klant_detail' result.id %}&quot;">
+                    <td>{{ result.id }}</td>
+                    <td>{{ result.klant_voornaam}}</td>
+                    <td>{{ result.klant_achternaam }}</td>
+                    <td>0{{ result.klant_telefoonnummer }}</td>
+                    <td>{{ result.get_aantal_tickets }}</td>
+                </tr>
+                {% endfor %}
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+{% if results.has_other_pages %}
+<div class="paginate-wrapper">
+    <ul class="pagination">
+    {% if results.has_previous %}
+      <li><a href="?page={{ results.previous_page_number }}">&laquo;</a></li>
+    {% else %}
+      <li class="disabled"><span>&laquo;</span></li>
+    {% endif %}
+    {% for i in results.paginator.page_range %}
+      {% if results.number == i %}
+        <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+      {% else %}
+        <li><a href="?page={{ i }}">{{ i }}</a></li>
+      {% endif %}
+    {% endfor %}
+    {% if results.has_next %}
+      <li><a href="?page={{ results.next_page_number }}">&raquo;</a></li>
+    {% else %}
+      <li class="disabled"><span>&raquo;</span></li>
+    {% endif %}
+  </ul>
+</div>
+{% endif %}
+
+{% endblock %}

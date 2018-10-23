@@ -1,0 +1,148 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="{% static 'tickets/css/style.css' %}">
+  <link rel="stylesheet" href="{% static 'tickets/css/font-awesome.css' %}">
+  {% if title %}
+  <title>{{ title }}</title>
+  {% else %}
+  <title>IctFabriek</title>
+  {% endif %}
+  <meta name="theme-color" content="#009688">
+</head>
+<body>
+    <div class="navbar">
+        <div class="merk-logo">
+            <a href="{% url 'tickets:index' %}"><img class="normal-img" id="site-logo" src="{% static 'tickets/img/dif_logo wit_klein.png' %}"></a>
+        </div>
+        <div id="nav-elements" class="nav-elements show">
+            <ul>
+                <li><a {% if title == "Home" %}class="active"{% endif %} href="{% url 'tickets:index' %}">Home</a></li>
+                <li><a {% if title == "Nieuw Ticket" %}class="active"{% endif %} href="{% url 'tickets:nieuw_klant' %}">Nieuw Ticket</a></li>
+                <li class="dropdown"><a {% if title == "Overzicht" %}class="active"{% endif %} href="javascript:void(0)" class="dropbtn">Overzicht</a>
+                    <div class="dropdown-content">
+                        <a href="{% url 'tickets:overzicht_ticket_open' %}">Openstaande tickets</a>
+                        <a href="{% url 'tickets:overzicht_klant' %}">Alle klanten</a>
+                        <a href="{% url 'tickets:overzicht_ticket' %}">Alle tickets</a>
+                    </div>
+                </li>
+                {% if user.is_staff %}
+                <li><a {% if title == "Admin" %}class="active"{% endif %} href="{% url 'admin:index' %}">Admin</a></li>
+                {% endif %}
+                <li class="dropdown"><a href="#"><i class="fa fa-bell-o">({{ notifications|length }})</i></a>
+                    <div class="dropdown-content">
+                    {% if notifications %}
+                        {% for notification in notifications %}
+                            <div class="notificatie-body">
+                                <a onclick="markeerAlsGelezen('{{ notification.id }}')" {% if notification.notificatie_opmerking %} href="{% url 'tickets:detail' notification.notificatie_opmerking.opmerking_ticket.id %}" {% else %} href="{% url 'tickets:detail' notification.notificatie_antwoord.antwoord_opmerking.opmerking_ticket.id %}" {% endif %} >{{ notification.notificatie_body }}</a>
+                                <a href="{% url 'tickets:delete_notificatie' notification.id %}" class="close-btn">&times;</a> 
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="notificatie-body">
+                            <a href="#">Er zijn geen ongelezen notificaties.</a>
+                        </div>
+                    {% endif %}
+                        <div style="background-color:#009688;" class="notificatie_body">
+                            <a style="font-weight:600; padding:5px 1em; color:white;" href="{% url 'tickets:overzicht_notificatie' %}">Alle notificaties</a>
+                        </div>
+                    </div>
+                </li>
+                {% if user.is_authenticated %}
+                <li><a href="{% url 'tickets:loguit' %}">Loguit</a> | {{ user.username|capfirst }} </li>
+                {% else %}
+                <li><a href="{% url 'tickets:login' %}">Login</a></li>
+                {% endif %}
+            </ul>
+        </div>
+        <div class="nav-toggle">
+            <div id="hide-nav">
+                <p>&and;</p>
+            </div>
+            <div id="show-nav">
+                <p>&or;</p>
+            </div>
+        </div>
+        
+        <script>
+            function markeerAlsGelezen(notificatie_id) {
+                var xhr = new XMLHttpRequest();
+                xhr.open("POST", "/tickets/ajax/notificatie_gezien/" + notificatie_id + "/");
+                xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');
+                xhr.send()
+            }
+        </script>
+        
+        <script>
+            const hideNav = document.getElementById('hide-nav');
+            const showNav = document.getElementById('show-nav');
+            const navElem = document.getElementById('nav-elements');
+
+            hideNav.addEventListener('click', function(){
+                navElem.style.display = 'none';
+                hideNav.style.display = 'none';
+                showNav.style.display = 'block';
+            })
+
+            showNav.addEventListener('click', function(){
+                navElem.style.display = 'block';
+                hideNav.style.display = 'block';
+                showNav.style.display = 'none';
+            })
+        </script>
+    </div>
+
+  <div class="container">
+
+    <div class="wrapper">
+     {% block body %}{% endblock %}
+    </div>
+
+    <footer>
+        <p>&copy; Hans Beijk V1.1.4</p>
+    </footer>
+
+  </div>
+
+  {% if messages %}
+    <ul id="id_messages" class="messages slide-in">
+        {% for message in messages %}
+        {% if message.tags == 'info' %}
+        <div class="modal" id="simpleModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Afhaalbewijs printen</h2>
+                </div>
+                <div class="modal-body">
+                    <p>Ticket succesvol aangemaakt! Druk op onderstaande knop om een afhaalbewijs te printen.</p>
+                </div>
+                <div class="modal-footer">
+                    <a href="{{ message }}" class="primary-btn-invert btn-medium" target="_new">Maak pdf</a>
+                    <a href="javascript:void(0);" onclick="document.getElementById('simpleModal').style.display = 'none';" id="sluit-btn" class="danger-btn btn-medium" type="button">Sluiten</a>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <li class="{{ message.tags }}">{{ message }}</li>
+        <script>
+            const messages = document.getElementById('id_messages');
+            setTimeout(function() {
+                messages.classList.remove('slide-in');
+                messages.classList.add('slide-out');
+            }, 5000);
+        </script>
+        {% endif %}
+        {% endfor %}
+    </ul>
+
+  {% endif %}
+
+  
+  
+</body>
+
+</html>

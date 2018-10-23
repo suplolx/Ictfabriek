@@ -1,0 +1,205 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Factuur</title>
+</head>
+<style>
+    body {
+        font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    h1 {
+        text-align:center;
+        font-size:20px;
+    }
+
+    p {
+        font-size:12px;
+    }
+
+    li {
+        font-size:12px;
+    }
+
+    h3 {
+        font-size:14px;
+    }
+
+    #header-logo {
+        text-align:center;
+    }
+
+    #handtekening-klant {
+        border-bottom:dashed 1px black;
+        padding:45px 0;
+        margin-right:80px
+    }
+
+    #handtekening-bedrijf {
+        border-bottom:dashed 1px black;
+        padding:45px 0;
+        margin-right:80px
+    }
+
+    th {
+        text-align: left;
+    }
+
+    table {
+        font-size:12px;
+    }
+
+    #totaal {
+        border-top:1px solid black;
+        margin:5px 0;
+        padding:10px 0;
+    }
+
+
+    /* http://xhtml2pdf.readthedocs.io/en/stable/usage.html */
+    @page {
+        size:letter a4;
+        @frame header_frame {
+            -pdf-frame-content: header-logo;
+            left:40pt; width: 512pt; top:25pt; height:55pt;
+        }
+
+        @frame header_frame {
+            -pdf-frame-content: header-title;
+            left:40pt; width:512; top:110pt; height:40;
+        }
+
+        @frame col1_frame {
+            -pdf-frame-content: klant-gegevens;
+            left: 50pt; width: 245pt; top: 160pt; height: 632pt;
+        }
+        @frame col2_frame {
+            -pdf-frame-content: bedrijf-gegevens;
+            left: 450pt; width: 245pt; top: 160pt; height: 632pt;
+        }
+
+        @frame content_frame {
+            -pdf-frame-content:ref-nummer;
+            left:450pt; width: 512pt; top:50pt; height:55pt
+        }
+
+        @frame content_frame {
+            -pdf-frame-content:datum;
+            left:50pt; width: 512pt; top:50pt; height:55pt
+        }
+
+        @frame content_frame {
+            -pdf-frame-content: werkzaamheden-omschrijving;
+            left:50pt; width: 512pt; top: 350pt; height: 632pt;
+        }
+
+        @frame content_frame {
+            -pdf-frame-content: factuur-kosten;
+            left:50pt; width:512pt; top:480pt; height:632pt;
+        }
+
+        @frame content_frame {
+            -pdf-frame-content: algemene-voorwaarden;
+            left:50pt; width:512pt; top:530pt; height:632pt;
+        }
+
+        @frame footer_frame {
+            -pdf-frame-content: handtekening-klant;
+            left:50pt; width:245pt; top:695pt; height:632pt;
+        }
+
+        @frame footer_frame {
+            -pdf-frame-content: handtekening-bedrijf;
+            left:380pt; width:245pt; top:695pt; height:632pt;
+        }
+
+    }
+</style>
+
+<body>
+    
+    <div id="datum">
+        <strong><p> {{ datum }}</p></strong>
+    </div>
+    <div id="ref-nummer">
+        <strong><p>Factuurnummer {{ factuur_nummer }}</p></strong>
+    </div>
+    <div id="header-logo">
+        <img src="/media/dif_logo wit_klein.jpg">
+    </div>
+    <div id="header-title">
+        <h1>Factuur</h1>
+    </div>
+    <div id="klant-gegevens">
+        <h3>Klant gegevens</h3>
+        <p>{{ klant_nummer }}</p>
+        <p>{{ klant_voornaam }}</p>
+        <p>{{ klant_achternaam }}</p>
+        <p>{{ klant_telefoonnummer }}</p>
+    </div>
+    <div id="bedrijf-gegevens">
+        <h3>Bedrijf gegevens</h3>
+        <p>Kr8tig</p>
+        <p>Parallelweg 169</p>
+        <p>6001 HM Weert</p>
+        <p>0495 769076</p>
+        <p>KVK 68591438</p>
+    </div>
+
+    <div id="werkzaamheden-omschrijving">
+        <h3>Werkzaamheden omschrijving</h3>
+        <p><strong>Klachtomschrijving: </strong>{{ticket_klacht}} </p>
+        <p><strong>Uitgevoerde werkzaamheden: </strong>{{ factuur_werkzaamheden }}</p>
+    </div>
+    
+    <div id="factuur-kosten">
+        <h3>Kosten</h3>
+        <table>
+            <thead>
+            <tr>
+                <th>Nr.</th>
+                <th>Artikel</th>
+                <th>Prijs</th>
+                
+            </tr>
+            </thead>
+            <tbody>
+            {% for artikel in factuur_artikelen %}
+                <tr>
+                    <td>{{ artikel.id }}</td> 
+                    <td>{{ artikel.artikel_naam }}</td>
+                    <td>&euro;{{ artikel.artikel_prijs }}</td>
+                </tr>
+            {% endfor %}
+            {% for artikel in factuur_extra_artikelen %}
+            <tr>
+                <td>0</td> 
+                <td>{{ artikel.nieuw_artikel_naam }}</td>
+                <td>&euro;{{ artikel.nieuw_artikel_prijs }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th id="totaal">Totaal</th>
+                    <th id="totaal"></th>
+                    <th id="totaal">&euro;{{ factuur_totaal }}</th>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    
+    <div id="handtekening-klant">
+        <p>Handtekening klant</p>
+        <p> </p>
+    </div>
+
+    <div id="handtekening-bedrijf">
+        <p>Handtekening medewerker</p>
+        <p> </p>
+    </div>
+</body>
+</html>

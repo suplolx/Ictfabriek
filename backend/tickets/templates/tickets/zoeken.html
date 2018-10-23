@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block body %}
+
+<form class="search-form" method="POST">
+    {% csrf_token %}
+    <p>
+        <label for="{{ search_form.ticket_body.id_for_label }}">Klachtomschrijving:</label>
+        {{ search_form.ticket_body }}
+    </p>
+    <p>
+        <label for="{{ search_form.apparaat_merk.id_for_label }}">Apparaat merk:</label>
+        {{ search_form.apparaat_merk }}
+    </p>
+    <p>
+        <label for="{{ search_form.ticket_onderwerp.id_for_label }}">Onderwerp:</label>
+        {{ search_form.ticket_onderwerp }}
+    </p>
+    <p>
+        <label for="{{ search_form.klant_achternaam.id_for_label }}">Klant achternaam:</label>
+        {{ search_form.klant_achternaam }}
+    </p>    
+    <input class="primary-btn btn-medium" type='submit' value="Zoeken" />
+</form>
+
+<div class="overzicht-wrapper">
+    <table class="overzicht-table">
+        <thead>
+            <th>Ticketnummer</th>
+            <th>Merk</th>
+            <th>Onderwerp</th>
+            <th>Klant</th>
+            <th>Datum aangemaakt</th>
+        </thead>
+        <tbody>
+            {% if results %}
+                {% for result in results %}
+                <tr onclick="window.location=&quot;{% url 'tickets:detail' result.id %}&quot;">
+                    <td>IF{{ result.id }}</td>
+                    <td>{{ result.ticket_apparaat.apparaat_merk }}</td>
+                    <td>{{ result.ticket_onderwerp }}</td>
+                    <td>{{ result.ticket_klant.klant_achternaam }}</td>
+                    <td>{{ result.ticket_datum_aangemaakt|date:'Y-m-d H:i' }}</td>
+                </tr>
+                {% endfor %}
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+{% if results.has_other_pages %}
+<div class="paginate-wrapper">
+    <ul class="pagination">
+    {% if results.has_previous %}
+      <li><a href="?page={{ results.previous_page_number }}">&laquo;</a></li>
+    {% else %}
+      <li class="disabled"><span>&laquo;</span></li>
+    {% endif %}
+    {% for i in results.paginator.page_range %}
+      {% if results.number == i %}
+        <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+      {% else %}
+        <li><a href="?page={{ i }}">{{ i }}</a></li>
+      {% endif %}
+    {% endfor %}
+    {% if results.has_next %}
+      <li><a href="?page={{ results.next_page_number }}">&raquo;</a></li>
+    {% else %}
+      <li class="disabled"><span>&raquo;</span></li>
+    {% endif %}
+  </ul>
+</div>
+{% endif %}
+
+{% endblock %}

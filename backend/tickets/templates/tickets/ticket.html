@@ -1,0 +1,349 @@
+{% extends "base.html" %}
+
+{% block body %}
+
+{% if perms.tickets.add_ticket %}
+<div class="ticket-pagina">
+
+    <div class="ticket-info">
+        <table class="ticket-page-table">
+
+            <tr>
+                <th colspan="2" class="ticket-info-header">Klant gegevens:</th>
+            </tr>
+            <tr>
+                <td>Klantnummer</td>
+                <td>{{ ticket.ticket_klant.id }}</td>
+            </tr>
+            <tr>
+                <td>Vooraam:</td>
+                <td>{{ ticket.ticket_klant.klant_voornaam }}</td>
+            </tr>
+            <tr>
+                <td>Achternaam:</td>
+                <td>{{ ticket.ticket_klant.klant_achternaam }}</td>
+            </tr>
+            <tr>
+                <td>Telefoonnummer:</td>
+                <td>{{ ticket.ticket_klant.klant_telefoonnummer }}</td>
+            </tr>
+            {% if ticket.ticket_klant.klant_datum_aangepast %}
+            <tr>
+                <td>Laatst aangepast:</td>
+                <td>{{ ticket.ticket_klant.klant_datum_aangepast|date:'Y-m-d H:i' }}</td>
+            </tr>
+            <tr>
+                <td>Laatst aangepast door:</td>
+                <td>{{ ticket.ticket_klant.klant_aangepast_door|capfirst }}</td>
+            </tr>
+            {% endif %}
+        </table>
+        </br>
+
+        <table id="id_apparaat_table" class="ticket-page-table">
+            {% if ticket.ticket_klant.heeft_apparaten %}
+            <tr>
+                <th colspan="2" class="ticket-info-header">Apparaat gegevens</th>
+            </tr>
+            
+            <tr>
+                <td>Merk:</td>
+                <td>{{ ticket.ticket_apparaat.apparaat_merk }}</td>
+            </tr>
+            <tr>
+                <td>Type:</td>
+                <td>{{ ticket.ticket_apparaat.apparaat_type }}</td>
+            </tr>
+            <tr>
+                <td>Accessoires:</td>
+                <td>{{ ticket.ticket_apparaat.apparaat_accessoires }}</td>
+            </tr>
+            <tr>
+                <td>Staat:</td>
+                <td>{{ ticket.ticket_apparaat.apparaat_staat }}</td>
+            </tr></br>
+                {% if ticket.ticket_apparaat.heeft_meer_tickets %}
+                <th colspan="2" class="ticket-info-header">Tickets</th>
+                    {% for t in tickets %}
+                        <tr>
+                            {% if t.id != ticket.id %}
+                            <td>Ticketnummer:</td>
+                            <td><a style="color:blue;" href="{% url 'tickets:detail' t.id %}" target="_blank">IF{{ t.id }}</a></td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+
+                {% endif %}
+
+                {% if ticket.heeft_facturen %}
+                <th colspan="2" class="ticket-info-header">Facturen</th>
+                    {% for f in facturen %}
+                    {% if f.factuur_pdf_file.name %}
+                    <tr>
+                        <td>Factuurnummer:</td>
+                        <td><a style="color:blue" href="/tickets{{ f.factuur_pdf_file.url }}" target="_blank">Factuur{{ f.id }}</a></td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td><a href="{% url 'tickets:factuur_pdf' f.id %}" target="_blank">Pdf genereren</a></td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+
+                {% endif %}
+
+            {% else %}
+            <tr>
+                <th colspan="2" class="ticket-info-header">Apparaat gegevens</th>
+            </tr>
+            
+            <tr>
+                <td style="text-align:center"><strong>Er is geen apparaat gekoppeld aan dit ticket.</strong></td>
+            </tr>
+
+            <tr>
+                <td style="text-align:center"><input id="id_add_btn" class="primary-btn btn-medium" type="button" value="Voeg toe" /></td>
+            </tr>
+            <tr> 
+                <td>
+                    <form class="ticket-form" id="id_apparaat_form" method="POST">
+                        {% csrf_token %}
+                    </form>
+                </td>
+            </tr>
+    
+            <script>
+                
+                const addBtn = document.getElementById('id_add_btn');
+                const appForm = document.querySelector('#id_apparaat_form');
+                
+                addBtn.addEventListener('click', function() {
+                    appForm.innerHTML += `
+                    <input type="hidden" id="id_pk_ticket" name="pk_ticket" value="{{ ticket.id }}"
+                    <label for="id_apparaat_merk">Merk:</label>
+                    <input type="text" name="apparaat_merk" id="id_apparaat_merk" />
+                    <label for="id_apparaat_type">Type:</label>
+                    <input type="text" name="apparaat_type" id="id_apparaat_type" />
+                    <label for="id_apparaat_accessoires">Accessoires:</label>
+                    <input type="text" name="apparaat_accessoires" id="id_apparaat_accessoires" />
+                    <label for="id_apparaat_staat">Staat:</label>
+					<input type="text" name="apparaat_staat" id="id_apparaat_staat" />
+                    <input class="primary-btn btn-medium half" type="button" id="id_add_apparaat" value="Klaar" />
+                    `
+                    addBtn.style.display = "none";
+
+                    document.getElementById('id_add_apparaat').addEventListener('click', function() {
+                        data = new FormData(appForm);
+                        var xhr = new XMLHttpRequest();
+                        xhr.open("POST", "{% url 'tickets:ajax_apparaat' %}");
+                        //xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');
+                        xhr.send(data);
+
+                        xhr.onload = function() {
+                            let data = JSON.parse(xhr.responseText);
+                            if (data.code === 200) {
+                                let appTable = document.querySelector('#id_apparaat_table');
+                                appTable.innerHTML = `
+                                    <tr>
+                                        <th colspan="2" class="ticket-info-header">Apparaat gegevens<a href="${data.apparaat_pk}/edit_apparaat/" style="font-weight:normal; float:right; margin-right:15px;" class="edit"><i class="fa fa-pencil" aria-hidden="true"></i></a></th>
+                                    </tr>
+                                    
+                                    <tr>
+                                        <td>Merk:</td>
+                                        <td>${data.apparaat_merk}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Type:</td>
+                                        <td>${data.apparaat_type}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Accessoires:</td>
+                                        <td>${data.apparaat_accessoires}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Staat:</td>
+                                        <td>${data.apparaat_staat}</td>
+                                    </tr>
+                                `
+                            }
+                        }
+                    })
+
+                })
+            </script>            
+            {% endif %}
+        </table>
+    </div>
+
+    <div class="ticket-info">
+        <table class="ticket-page-table">
+            <tr>
+                <th colspan="2" class="ticket-info-header">Ticket info:</th>
+            </tr>
+            <tr>
+                <td>Ticket Nummer:</td>
+                <td>IF0000{{ ticket.id }}</td>
+            </tr>
+            <tr>
+                <td>Onderwerp:</td>
+                <td>{{ ticket.ticket_onderwerp }}</td>
+            </tr>
+            <tr>
+                <td>Prioriteit:</td>
+                <td class="capitalize">{{ ticket.ticket_prioriteit }}</td>
+            </tr>
+            <tr>
+                <td>Status:</td>
+                <td>{{ ticket.ticket_status }}</td>
+            </tr>
+            <tr>
+                <td>Aangemaakt door:</td>
+                <td class="capitalize">{{ ticket.ticket_auteur.username }}</td>
+            </tr>
+            <tr>
+                <td>Datum aangemaakt:</td>
+                <td>{{ ticket.ticket_datum_aangemaakt|date:'Y-m-d H:i' }}</td>
+            </tr>
+            <tr>
+                <td style="text-align:left;" valign="top">Klachtomschrijving:</td>
+                <td style="text-align:left;" valign="top">{{ ticket.ticket_body }}</td>
+            </tr>
+            {% if ticket.ticket_datum_aangepast %}
+            <tr>
+                <td>Laatst aangepast:</td>
+                <td>{{ ticket.ticket_datum_aangepast|date:'Y-m-d H:i' }}</td>
+            </tr>
+            <tr>
+                <td>Aangepast door:</td>
+                <td>{{ ticket.ticket_auteur_bewerkt|capfirst }}</td>
+            </tr>
+            {% endif %}
+            
+            {% if facturen %}
+                {% for factuur in facturen %}
+                <tr>
+                    <td style="text-align:left;" valign="top">Uitgevoerde werkzaamheden:</td>
+                    <td style="text-align:left;" valign="top">{{ factuur.factuur_werkzaamheden }}</td>
+                </tr>
+                {% endfor %}
+            {% endif %}
+        </table>
+
+        
+    </div>
+
+    <div class="ticket-info">
+        <div class="action-bar">
+            <h4><i class="fa fa-cog" aria-hidden="true"></i>Acties</h4>
+            <ul>
+                <li><i class="fa fa-exchange" aria-hidden="true"></i><a href="{% url 'tickets:maak_factuur' ticket.id %}">Ticket afsluiten</a></li>
+                <li><i class="fa fa-ticket" aria-hidden="true"></i><a href="{% url 'tickets:edit_ticket' ticket.id %}">Ticket wijzigen</a></li>
+                {% if ticket.ticket_klant %}<li><i class="fa fa-user-circle-o" aria-hidden="true"></i><a href="{% url 'tickets:edit_klant' ticket.ticket_klant.id %}">Klant wijzigen</a></li>{% endif %}
+                {% if ticket.ticket_klant.heeft_apparaten %}<li><i class="fa fa-laptop" aria-hidden="true"></i><a href="{% url 'tickets:edit_apparaat' ticket.ticket_apparaat.id %}">Apparaat wijzigen</a></li>{% endif %}
+                <li><i class="fa fa-file-pdf-o" aria-hidden="true"></i><a href="{%  url 'tickets:afhaalbewijs_pdf' ticket.id %}" target="_blank">Afhaalbewijs</a></li>
+                <li><i class="fa fa-power-off" aria-hidden="true"></i><a href="{% url 'tickets:loguit' %}">Uitloggen</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="ticket-opmerkingen-wrapper">
+    <h2>Opmerkingen</h2>
+    {% if opmerkingen %}
+        {% for opmerking in opmerkingen %}
+        <div class="ticket-opmerking-body">
+            <div class="ticket-opmerking-header {{ opmerking.opmerking_type }}">
+                {% if opmerking.opmerking_auteur == user and opmerking.opmerking_type != "aangepast" and opmerking.opmerking_type != "afgesloten" %} <a href="{% url 'tickets:delete_opmerking' opmerking.id %}">&times;</a> {% endif %}
+                <p>Door <span class="capitalize">{{ opmerking.opmerking_auteur }}</span> {% if opmerking.opmerking_ontvanger and opmerking.opmerking_type == "vraag" %} naar <span class="capitalize">{{ opmerking.opmerking_ontvanger }}</span>{% endif %} op {{ opmerking.opmerking_datum_aangemaakt|date:'Y-m-d H:i' }} </p>
+            </div>
+            <div class="ticket-opmerking-content">
+                <p>{{ opmerking.opmerking_body }}</p>
+                {% if opmerking.opmerking_type == "vraag" %}
+                    <input id="reply-btn-{{ opmerking.id }}" class="reply-btn btn-medium" type="button" value="Antwoord">
+                    <form id="reply-form-{{ opmerking.id }}" action="{% url 'tickets:plaats_antwoord' opmerking.id %}" method="POST">
+                        {% csrf_token %}
+                        {{ antwoord_form.antwoord_body }} </br>
+                        <input class="reply-btn btn-medium" type="submit" value="Plaats"/>
+                    </form>
+                <script>
+                    const replyBtn{{ opmerking.id }} = document.getElementById("reply-btn-{{ opmerking.id }}");
+                    const replyForm{{ opmerking.id }} = document.getElementById("reply-form-{{ opmerking.id }}");
+                    replyBtn{{ opmerking.id }}.addEventListener('click', function() {
+                        replyForm{{ opmerking.id }}.style.display = 'block';
+                    })
+                </script>
+
+                    {% endif %}
+            </div>
+        </div>
+            {% if opmerking.heeft_antwoorden %}
+                {% for antwoord in opmerking.get_antwoorden %}
+                
+                <div style="margin:0 0 0 10px;" class="ticket-opmerking-body">
+                    <div class="ticket-opmerking-header antwoord">
+                        <p>Door <span class="capitalize">{{ antwoord.antwoord_auteur }}</span> op {{ antwoord.antwoord_datum_aangemaakt|date:'Y-m-d H:i' }} </p>
+                    </div>
+                    <div class="ticket-opmerking-content">
+                        <p>{{ antwoord.antwoord_body }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            {% endif %}
+        {% endfor %}
+
+    {% else %}
+
+    <p>Er zijn nog geen opmerkingen!</p>
+
+    {% endif %}
+
+
+    <form method="post" action="{% url 'tickets:plaats_opmerking' ticket.id %}">
+        {% csrf_token %}
+        <p>
+            {{ form.opmerkingen }}
+        </p>
+        <span id="word-count">500</span>
+
+        <p>
+            <label for="{{ form.opmerking_type.id_for_label }}">Opmerking type:</label>
+            {{ form.opmerking_type }}
+        </p>
+        <p>
+            <label for="{{ form.user_list.id_for_label }}">Medewerkers:</label>
+            {{ form.user_list }}
+        </p>
+        <input class="primary-btn btn-large" type="submit" value="Plaats opmerking">
+    </form>
+    <script>
+        const opmerkingType = document.getElementById('id_opmerking_type');
+        const userList = document.getElementById('id_user_list');
+        var wordCount = document.getElementById('word-count');
+        const opmerkingen = document.getElementById('id_opmerkingen');
+        
+        opmerkingen.addEventListener('keyup', function() {
+        if (opmerkingen.value.length <= 500) {
+            wordCount.innerHTML = 500 - opmerkingen.value.length;
+        }
+        })
+
+        userList.disabled = true; 
+
+        opmerkingType.addEventListener('change', function() {
+            if (opmerkingType.value === "vraag") {
+                userList.disabled = false;
+            } else {
+                userList.disabled = true; 
+            }
+        })
+    </script>
+</div>
+{% else %}
+
+<p>U heeft niet de juiste bevoegdheden om deze pagina te bekijken :(</p><br>
+<p>Neem contact op met de website beheerder</p>
+
+{% endif %}
+
+
+{% endblock %}

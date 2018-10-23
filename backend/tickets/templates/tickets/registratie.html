@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block body %}
+<div class="login-form">
+    <form action="{% url 'tickets:registratie' %}" method="post">
+        {% csrf_token %}
+
+        {{ form }}
+
+        <input type='submit' value="Registreer" />
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,161 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Afhaalbewijs</title>
+</head>
+<style>
+    body {
+        font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    h1 {
+        text-align:center;
+        font-size:20px;
+    }
+
+    p {
+        font-size:12px;
+    }
+
+    h3 {
+        font-size:14px;
+    }
+
+    #header-logo {
+        text-align:center;
+    }
+
+    #handtekening-klant {
+        border-bottom:dashed 1px black;
+        padding:45px 0;
+        margin-right:80px
+    }
+
+    #handtekening-bedrijf {
+        border-bottom:dashed 1px black;
+        padding:45px 0;
+        margin-right:80px
+    }
+
+
+    /* http://xhtml2pdf.readthedocs.io/en/stable/usage.html */
+    @page {
+        size:letter a4;
+        @frame header_frame {
+            -pdf-frame-content: header-logo;
+            left:40pt; width: 512pt; top:25pt; height:55pt;
+        }
+
+        @frame header_frame {
+            -pdf-frame-content: header-title;
+            left:40pt; width:512; top:110pt; height:40;
+        }
+
+        @frame col1_frame {
+            -pdf-frame-content: klant-gegevens;
+            left: 50pt; width: 245pt; top: 160pt; height: 632pt;
+        }
+        @frame col2_frame {
+            -pdf-frame-content: bedrijf-gegevens;
+            left: 450pt; width: 245pt; top: 160pt; height: 632pt;
+        }
+
+        @frame content_frame {
+            -pdf-frame-content:ref-nummer;
+            left:450pt; width: 512pt; top:50pt; height:55pt
+        }
+
+        @frame content_frame {
+            -pdf-frame-content: app-gegevens;
+            left:50pt; width: 512pt; top: 285pt; height: 632pt;
+        }
+
+        @frame content_frame {
+            -pdf-frame-content: ticket-gegevens;
+            left:50pt; width:512pt; top:410pt; height:632pt;
+        }
+
+        @frame content_frame {
+            -pdf-frame-content: algemene-voorwaarden;
+            left:50pt; width:512pt; top:530pt; height:632pt;
+        }
+
+        @frame footer_frame {
+            -pdf-frame-content: handtekening-klant;
+            left:50pt; width:245pt; top:695pt; height:632pt;
+        }
+
+        @frame footer_frame {
+            -pdf-frame-content: handtekening-bedrijf;
+            left:380pt; width:245pt; top:695pt; height:632pt;
+        }
+
+    }
+</style>
+<body>
+    <div id="ref-nummer">
+        <strong><p>ref nummer: IF{{ ticket_nummer }}</p></strong>
+    </div>
+    <div id="header-logo">
+        <img src="/media/dif_logo wit_klein.jpg">
+    </div>
+    <div id="header-title">
+        <h1>Afhaalbewijs</h1>
+    </div>
+    <div id="klant-gegevens">
+        <h3>Klant gegevens</h3>
+        <p>Klantnummer: {{ klant_nummer }}</p>
+        <p>Voornaam: {{ klant_voornaam }}</p>
+        <p>Achternaam: {{ klant_achternaam }}</p>
+        <p>Telefoonnummer: {{ klant_telefoonnummer }}</p>
+    </div>
+    <div id="bedrijf-gegevens">
+        <h3>Bedrijf gegevens</h3>
+        <p>Kr8tig</p>
+        <p>Parallelweg 169</p>
+        <p>6001 HM Weert</p>
+        <p>0495 769076</p>
+    </div>
+    <div id="ticket-gegevens">
+        <h3>Opdracht gegevens</h3>
+        <p>Opdracht Nummer: {{ ticket_nummer }}</p>
+        <p>Onderwerp: {{ ticket_onderwerp }}</p>
+        <p>Klachtomschrijving: {{ ticket_body }}</p>
+    </div>
+    <div id="app-gegevens">
+        <h3>Apparaat gegevens</h3>
+        <p>Merk: {{ apparaat_merk }}</p>
+        <p>Type: {{ apparaat_type }}</p>
+        <p>Accessoires: {{ apparaat_accessoires }}</p>
+        <p>Uiterlijke staat: {{ apparaat_staat }}</p>
+    </div>
+    <div id="algemene-voorwaarden">
+        <hr>
+        <p><strong>Bij de uitvoering van reparaties kunnen opgeslagen gegevens of programma's verloren gaan.
+            Kr8tig is niet gehouden tot, noch aansprakelijk voor, het veiligstellen van aanwezige
+            gegevens en/of programma's. De klant dient zelf, voor aanvang van de
+            reparatiewerkzaamheden, te zorgen dat dergelijke bestanden op zorgvuldige wijze zijn
+            veiliggesteld. Ook voor het opnieuw invoeren van deze bestanden na de reparatie, is de klant
+            zelf verantwoordelijk en aansprakelijk. Reparaties kunnen alleen op vertoon van het originele afgiftebewijs van Kr8tig
+            worden afgegeven. Kr8tig is niet gehouden te controleren of de persoon die met het originele
+            afgiftebewijs van Kr8tig de producten afhaalt, ook de rechtmatige eigenaar is. Bij verlies van het originele afgiftebewijs zal Kr8tig de al dan niet gerepareerde
+            producten uitsluitend afgeven op vertoon van een geldig legitimatiebewijs op naam van de 
+            persoon die volgens de administratie van Kr8tig het te repareren product heeft
+            afgegeven, waarbij degene die het product afhaalt voor ontvangst dient te tekenen. Door dit formulier te tekenen gaat u ermee akkoord dat alle bovenstaande gegevens correct zijn ingevuld.</strong></p>
+        <hr>
+    </div>
+    
+    <div id="handtekening-klant">
+        <p>Handtekening klant</p>
+        <p> </p>
+    </div>
+
+    <div id="handtekening-bedrijf">
+        <p>Handtekening medewerker</p>
+        <p> </p>
+    </div>
+</body>
+</html>

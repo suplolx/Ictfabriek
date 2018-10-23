@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block body %}
+
+<div class="overzicht-wrapper">
+        <table class="overzicht-table">
+            <thead>
+                <th>Ticketnummer</th>
+                <th>Notificatie</th>
+                <th>Van</th>
+                <th>Naar</th>
+                <th>Datum</th>
+                <th></th>
+            </thead>
+            <tbody>
+                {% if notificaties %}
+                    {% for notificatie in notificaties %}
+                    {% if notificatie.notificatie_opmerking %}
+                    <tr onclick="window.location=&quot;{% url 'tickets:detail' notificatie.notificatie_opmerking.opmerking_ticket.id %}&quot;">
+                        <td>IF{{notificatie.notificatie_opmerking.opmerking_ticket.id}}</td>
+                    {% else %}
+                    <tr onclick="window.location=&quot;{% url 'tickets:detail' notificatie.notificatie_antwoord.antwoord_opmerking.opmerking_ticket.id %}&quot;">
+                        <td>IF{{notificatie.notificatie_antwoord.antwoord_opmerking.opmerking_ticket.id}}</td>
+                    {% endif %}
+                        <td>{{ notificatie.notificatie_body }}</td>
+                        <td>{{ notificatie.notificatie_van|capfirst }}</td>
+                        <td>{{ notificatie.notificatie_naar|capfirst }}</td>
+                        <td>{{ notificatie.notificatie_datum_aangemaakt|date:'Y-m-d H:i' }}</td>
+                        <td><a href="{% url 'tickets:delete_notificatie' notificatie.id %}" class="close-btn">&times;</a></td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="6">Geen notificaties</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+{% endblock %}

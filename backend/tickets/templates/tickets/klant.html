@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block body %}
+
+{% if perms.tickets.change_klant %}
+<div class="klant-wrapper">
+        
+        <div class="klant-table">
+            <table class="ticket-page-table">
+                <tr>
+                    <th colspan="2" class="ticket-info-header">Klant gegevens:<a href="{% url 'tickets:edit_klant' klant.id %}" style="font-weight:normal; float:right; margin-right:15px;" class="edit"><i class="fa fa-pencil" aria-hidden="true"></i></a></th>
+                </tr>
+                <tr>
+                    <td>Klantnummer</td>
+                    <td>{{ klant.id }}</td>
+                </tr>
+                <tr>
+                    <td>Vooraam:</td>
+                    <td>{{ klant.klant_voornaam }}</td>
+                </tr>
+                <tr>
+                    <td>Achternaam:</td>
+                    <td>{{ klant.klant_achternaam }}</td>
+                </tr>
+                <tr>
+                    <td>Telefoonnummer:</td>
+                    <td>{{ klant.klant_telefoonnummer }}</td>
+                </tr>
+                {% if klant.klant_datum_aangepast %}
+                <tr>
+                    <td>Laatst aangepast:</td>
+                    <td>{{ klant.klant_datum_aangepast|date:'Y-m-d H:i' }}</td>
+                </tr>
+                <tr>
+                    <td>Laatst aangepast door:</td>
+                    <td>{{ klant.klant_aangepast_door|capfirst }}</td>
+                </tr>
+                {% endif %}
+            </table>
+            </br>
+        </div>
+
+        <div class="klant-tickets">
+            {% if klant.heeft_tickets %}
+            <table class="ticket-page-table">
+                <tr>
+                    <th style="text-align:center;" colspan="2" class="ticket-info-header">Tickets:</th>
+                </tr>
+                {% for ticket in tickets %}
+                <tr>
+                    <td style="text-align:center;"><a style="color:rgb(0, 140, 255);font-weight:normal;" href="{% url 'tickets:detail' ticket.id %}">IF0000{{ ticket.id }} {{ ticket.ticket_onderwerp }}</a></td>
+                </tr>
+                {% endfor %}
+                <tr>
+                    <td style="text-align:center;"><a class="primary-btn btn-small" href="{% url 'tickets:nieuw_apparaat' klant.id %}">Nieuw <i class="fa fa-plus" aria-hidden="true"></i></a></td>
+                </tr>
+            </table>
+            {% else %}
+
+            <table class="ticket-page-table">
+                <tr>
+                    <th colspan="2" class="ticket-info-header">Tickets:</th>
+                </tr>
+                <tr>
+                    <td style="text-align:center;">Klant heeft geen tickets</td>
+                </tr>
+                <tr>
+                    <td style="text-align:center;"><a class="primary-btn btn-small" href="{% url 'tickets:nieuw_apparaat' klant.id %}">Nieuw <i class="fa fa-plus" aria-hidden="true"></i></a></td>
+                </tr>
+            </table>
+
+            {% endif %}
+        </div>
+
+        <div class="klant-apparaten">
+
+            {% if klant.heeft_apparaten %}
+            <table class="ticket-page-table">
+                <tr>
+                    <th style="text-align:center;" colspan="2" class="ticket-info-header">Apparaten:</th>
+                </tr>
+                {% for apparaat in apparaten %}
+                <tr>
+                    <td style="text-align:center; font-weight:normal">{{ apparaat.apparaat_merk }} {{ apparaat.apparaat_type }}<a href="{% url 'tickets:edit_apparaat' apparaat.id %}" style="font-weight:normal; float:right; margin-right:15px;" class="edit"><i class="fa fa-pencil" aria-hidden="true"></i></a></td>
+                </tr>
+                {% endfor %}
+            </table>
+            {% else %}
+
+            <table class="ticket-page-table">
+                <tr>
+                    <th colspan="2" class="ticket-info-header">Apparaten:</th>
+                </tr>
+                <tr>
+                    <td>Klant heeft geen apparaten</td>
+                </tr>
+            </table>
+
+            {% endif %}
+        </div>
+</div>
+{% else %}
+
+<p>U heeft niet de juiste bevoegdheden om een ticket aan te maken :(</p>
+
+{% endif %}
+
+{% endblock %}

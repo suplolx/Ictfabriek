@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block body %}
+
+{% load staticfiles %}
+
+{% if perms.tickets.add_ticket %}
+<div class="ticket-form-wrapper">
+
+    <div class="registratie-info">
+        <h2>Stap 2 van de 3</h2>
+        <h3>Klant gegevens</h3>
+        <p>Voornaam: {{ klant.klant_voornaam }}</p>
+        <p>Achternaam: {{ klant.klant_achternaam }}</p>
+        <p>Telefoonnummer: {{ klant.klant_telefoonnummer }}</p>
+    </div>
+
+    <div class="ticket-input block">
+        <form class="ticket-form block" method="post">
+            {% csrf_token %}
+            <h3 class="full">Apparaat registratie</h3>
+            {% if apparaten %}
+            <div class="snel-zoek" class="site-naam show">
+                
+                <h3>Gekoppelde apparaten</h3>
+                    {% for apparaat in apparaten %}
+
+                    <li><a class="reply-btn-inv btn-medium" href="{% url 'tickets:klant_ticket' apparaat.pk %}">{{ apparaat.apparaat_merk }} {{ apparaat.apparaat_type }}</a></li>
+
+                    {% endfor %}
+            </div>
+            {% endif %}
+            
+
+            {{ apparaat_form }}
+            <br>
+            <input onclick="window.history.back()" class="primary-btn-inv btn-large" type="button" value="Vorige"/>
+            <input class="primary-btn btn-large" type='submit' value="Volgende" />
+        </form>
+
+
+
+    </div>
+</div>
+
+
+{% else %}
+
+<p>U heeft niet de juiste bevoegdheden om een ticket aan te maken :(</p>
+
+{% endif %}
+
+{% endblock %}

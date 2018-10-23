@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block body %}
+
+{% load staticfiles %}
+
+{% if perms.tickets.add_ticket %}
+<div class="ticket-form-wrapper">
+
+    <div class="registratie-info">
+        <h2>Stap 1 van de 3</h2>
+        <p>Vul de gegevens van de klant in.</p>
+        <p>Bij de volgende stap voegt u een apparaat toe.</p>
+
+        <p>Is de klant al bekend bij ons? Gebruik dan de snelzoeker op deze pagina of zoek in het klantoverzicht.</p>
+
+    </div>
+
+    <div class="ticket-input block">
+        <h3 class="full">Klant registratie <span id="id_klant_gegevens"></span></h3>
+        <div style="width:90%;" class="snel-zoek" class="site-naam show">
+            <h3>Bestaande klant</h3>
+            <form method="POST" id="snel-zoek-form">
+                <input type="search" name="input_nummer" id="id_input_nummer" placeholder="Voornaam of achternaam klant"/><i class="fa fa-search" aria-hidden="true"></i>
+            </form>
+            <div class="search-box" id="zoek-resultaten">
+
+            </div>
+        </div>
+        <form class="ticket-form block" method="post">
+            {% csrf_token %}
+            
+            <p>
+                <label for="{{ form.klant_voornaam.id_for_label }}">Voornaam:</label>
+                {{ form.klant_voornaam }}
+            </p>
+            <p>
+                <label for="{{ form.klant_achternaam.id_for_label }}">Achternaam:</label>
+                {{ form.klant_achternaam }}
+            </p>
+            <p>
+                <label for="{{ form.klant_telefoonnummer.id_for_label }}">Telefoonnummer:</label>
+                {{ form.klant_telefoonnummer }}
+            </p>
+            <p>
+                <label for="{{ form.klant_emailadres.id_for_label }}">Email adres:</label>
+                {{ form.klant_emailadres }}
+            </p>
+
+            <input onclick="window.history.back()" class="primary-btn-inv btn-large" type="button" value="Vorige"/>
+            <input class="full primary-btn btn-large" type='submit' value="Verder" />
+        </form>
+
+
+
+    </div>
+</div>
+
+<script>
+    const inputNummer = document.getElementById('id_input_nummer');
+    const searchResults = document.getElementById('zoek-resultaten');
+
+    inputNummer.addEventListener('keyup', function(e) {
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", "{% url 'tickets:zoek_klant' %}");
+      //setting header with csrf token provided by django
+      xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');
+      //selecting form
+      var formElement = document.querySelector('#snel-zoek-form');
+      //sending form data to end point
+      xhr.send(new FormData(formElement));
+      //data.appData
+      xhr.onload = function() {
+          let data = JSON.parse(xhr.responseText);
+          console.log(data);
+          if (data.Code === 2) {
+              searchResults.style.display = 'block';
+              searchResults.innerHTML = ''
+              for (var i in data.klant_array) {
+                searchResults.innerHTML += `
+                    <a class="zoek-klant" href="/tickets/nieuw_ticket/${data.klant_array[i].klant_id}/apparaat/"><h4>Klantnummer: ${data.klant_array[i].klant_id}</h4>
+                    <p>${data.klant_array[i].klant_voornaam} ${data.klant_array[i].klant_achternaam}</p><i style="margin-left:1px;" class="fa fa-arrow-circle-right" aria-hidden="true"></i></a>
+                `
+                }    
+            } else {
+              searchResults.innerHTML = ''
+              searchResults.style.display = 'none';
+          }
+      }
+  });
+</script>
+
+{% else %}
+
+<p>U heeft niet de juiste bevoegdheden om een ticket aan te maken :(</p>
+
+{% endif %}
+
+{% endblock %}

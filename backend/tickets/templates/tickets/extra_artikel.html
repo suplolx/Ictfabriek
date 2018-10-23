@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block body %}
+
+{% load staticfiles %}
+
+{% if perms.tickets.add_ticket %}
+<div class="ticket-form-wrapper">
+
+    <div class="registratie-info">
+        <h2>Stap 2 van de 3</h2>
+        <h3>Klant gegevens</h3>
+        <p>Voornaam: </p>
+        <p>Achternaam: </p>
+        <p>Telefoonnummer: 0</p>
+    </div>
+
+    <div class="ticket-input block">
+        <form id="ticket-form" class="ticket-form block" method="post">
+            {% csrf_token %}
+            <h3 class="full">Apparaat registratie </h3>
+                {{ form }}
+            <br>
+            <input id="add-btn" class="reply-btn btn-large" type='submit' value="+ Voeg toe" />  
+            <input class="primary-btn btn-large" type='submit' value="Klaar" />
+            <input onclick="window.history.back()" class="primary-btn-inv btn-large" type="button" value="Vorige"/> 
+        </form>
+        
+    </div>
+
+    <div class="artikel-wrapper">
+            <div id="id-artikel-container" class="artikel-container">
+            </div>
+        </div>
+</div>
+
+<script>
+    const addBtn = document.getElementById('add-btn');
+    const addContent = document.getElementById('id-artikel-container');
+
+    addBtn.addEventListener('click', function(e) {
+        e.preventDefault()
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "{% url 'tickets:ajax_artikel_toevoegen' factuur.id %}");
+        //setting header with csrf token provided by django
+        xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');
+        //sending form data to end point
+        var formElement = document.querySelector('#ticket-form');
+        //sending form data to end point
+        xhr.send(new FormData(formElement));
+        //data.appData
+        xhr.onload = function() {
+            let data = JSON.parse(xhr.responseText);
+            
+            addContent.innerHTML += `
+            <div id="artikel-item-${data.artikel_id}" class="artikel-item">
+                <h2 class="artikel-header">
+                    ${data.artikel_naam}
+                    <span onclick="deleteArtikel('${data.artikel_id}')" id="close-btn">
+                        &times;
+                    </span>
+                </h2>
+                <div class="artikel-content">
+                    <p>Prijs: €${data.artikel_prijs}</p>
+                    <p>${data.artikel_omschrijving}</p>
+                </div>
+            </div>
+            `
+    }
+});
+</script>
+
+<script>
+    function deleteArtikel(artikelId) {
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "/tickets/ajax/artikel_verwijderen/" + artikelId + "/");
+        //setting header with csrf token provided by django
+        xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');
+        xhr.send();
+
+        xhr.onload = function () {
+            let response = JSON.parse(xhr.responseText);
+            console.log(response);
+            var itemCard = document.querySelector('#artikel-item-' + response.artikel_id);
+            itemCard.remove();
+        }
+    }
+</script>
+
+
+{% else %}
+
+<p>U heeft niet de juiste bevoegdheden om een ticket aan te maken :(</p>
+
+{% endif %}
+
+{% endblock %}

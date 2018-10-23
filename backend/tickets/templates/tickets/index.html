@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% block body %}
+
+        <div class="quick-stats">
+            <h2>Dashboard</h2>
+            <div class="item-wrapper">
+                <i class="fa fa-envelope-open openstaande-tickets-icon" aria-hidden="true"></i>
+                <h4>{{ openstaande_tickets|length }}</h4>
+                <p>Openstaande opdrachten</p>
+            </div>
+            <div class="item-wrapper">
+                <i class="fa fa-hourglass-end tijd-verstreken-tickets-icon" aria-hidden="true"></i>
+                <h4>{{ tijd_verstreken|length }}</h4>
+                <p>Ouder dan een week</p>
+            </div>
+            <div class="item-wrapper">
+                <i class="fa fa-database totaal-aantal-tickets-icon" aria-hidden="true"></i>
+                <h4>{{ totaal_tickets }}</h4>
+                <p>Totaal opdrachten</p>
+            </div>
+            <div class="item-wrapper">
+                <i class="fa fa-address-book totaal-aantal-klanten-icon" aria-hidden="true"></i>
+                <h4>{{ totaal_klanten }}</h4>
+                <p>Totaal klanten</p>
+            </div>
+        </div>
+
+        <div class="quick-actions">
+            <h2>Snel acties</h2>
+            <a href="{% url 'tickets:nieuw_klant' %}">
+            <div class="action-wrapper">
+                <i class="fa fa-arrow-circle-right" aria-hidden="true"></i>
+                <p>Nieuwe opdracht aanmaken</p>
+            </div>
+            </a>
+            <a href="{% url 'admin:auth_user_add' %}">
+            <div class="action-wrapper">
+                <i class="fa fa-arrow-circle-right" aria-hidden="true"></i>
+                <p>Nieuwe gebruiker aanmaken</p>
+            </div>
+            </a>
+            <a href="{% url 'admin:tickets_artikel_add' %}">
+            <div class="action-wrapper">
+                <i class="fa fa-arrow-circle-right" aria-hidden="true"></i>
+                <p>Nieuw artikel toevoegen</p>
+            </div>
+            </a>
+
+        </div>
+
+        <div class="quick-overview">
+            <h2>Snel overzicht</h2>
+            <div class="overview-wrapper">
+                <h3>Laatste 5 openstaande tickets</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nr</th>
+                            <th>Merk</th>
+                            <th>Onderwerp</th>
+                            <th>Dagen</th>
+                        </tr>
+                    </thead>
+                {% if openstaande_tickets %}
+                    {% for ticket, dag in openstaande_tickets %}
+                        {% if forloop.counter < 6 %}
+                        <tbody>
+                            <tr onclick="window.location=&quot;{% url 'tickets:detail' ticket.id %}&quot;">
+                                <td>IF{{ ticket.id }}</td>
+                                <td>{{ ticket.ticket_apparaat.apparaat_merk }}</td>
+                                <td>{{ ticket.ticket_onderwerp }}</td>
+                                <td>{{ dag }}</td>
+                            </tr>
+                        </tbody>
+                        
+                        {% endif %}
+                    {% endfor %}
+                        <tfoot>
+                            <tr onclick="window.location=&quot;{% url 'tickets:overzicht_ticket_open' %}&quot;">
+                                <th colspan="4">Alle openstaande tickets</th>
+                            </tr>
+                        </tfoot>
+
+                {% else %}
+                    <tbody>
+                        <tr>
+                            <td colspan="4">Er zijn geen openstaande tickets!</td>
+                        </tr>
+                    </tbody>
+                {% endif %}
+                </table>
+            </div>
+            <div class="overview-wrapper">
+                <h3>Ouder dan een week</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nr</th>
+                            <th>Merk</th>
+                            <th>Onderwerp</th>
+                            <th>Dagen</th>
+                        </tr>
+                    </thead>
+                {% if tijd_verstreken %}
+                    {% for ticket, dag in tijd_verstreken %}
+                        {% if forloop.counter < 6 %}
+                        <tbody>
+                            <tr onclick="window.location=&quot;{% url 'tickets:detail' ticket.id %}&quot;">
+                                <td>IF{{ ticket.id }}</td>
+                                <td>{{ ticket.ticket_apparaat.apparaat_merk }}</td>
+                                <td>{{ ticket.ticket_onderwerp }}</td>
+                                <td>{{ dag }}</td>
+                            </tr>
+                        </tbody>
+                        {% endif %}
+                    {% endfor %}
+                    <tfoot>
+                        <tr onclick="window.location=&quot;{% url 'tickets:overzicht_ticket_open' %}&quot;">
+                            <th colspan="4">Alle openstaande tickets</th>
+                        </tr>
+                    </tfoot>
+
+                {% else %}
+                    <tbody>
+                        <tr>
+                            <td colspan="4">Er zijn geen oude openstaande tickets!</td>
+                        </tr>
+                    </tbody>
+                {% endif %}
+                </table>
+            </div>
+            <div class="overview-wrapper">
+                <h3>Laatste 5 klanten</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nr</th>
+                            <th>Voornam</th>
+                            <th>Achternaam</th>
+                        </tr>
+                    </thead>
+                {% if laatste_klanten %}
+                    {% for klant in laatste_klanten %}
+                        <tbody>
+                            <tr onclick="window.location=&quot;{% url 'tickets:klant_detail' klant.id %}&quot;">
+                                <td>{{ klant.id }}</td>
+                                <td>{{ klant.klant_voornaam }}</td>
+                                <td>{{ klant.klant_achternaam }}</td>
+                            </tr>
+                        </tbody>
+                    {% endfor %}
+                    <tfoot>
+                        <tr onclick="window.location=&quot;{% url 'tickets:overzicht_klant' %}&quot;">
+                            <th colspan="4">Alle klanten</th>
+                        </tr>
+                    </tfoot>
+
+                {% else %}
+                    <tbody>
+                        <tr>
+                            <td colspan="4">Er zijn geen klanten!</td>
+                        </tr>
+                    </tbody>
+                {% endif %}
+                </table>
+            </div>
+        </div>
+
+
+{% endblock %}

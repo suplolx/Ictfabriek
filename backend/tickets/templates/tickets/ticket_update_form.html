@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block body %}
+
+{% load staticfiles %}
+
+{% if perms.tickets.change_ticket %}
+<div class="ticket-form-wrapper">
+    
+    <div class="ticket-input block">
+        <form class="ticket-form block" method="post">
+            {% csrf_token %}
+            <h3 class="full">Ticket registratie <span id="id_klant_gegevens"></span></h3>
+
+            <p>
+                <label for="{{ form.ticket_onderwerp.id_for_label }}">Onderwerp:</label>
+                {{ form.ticket_onderwerp }}
+            </p>
+            <p>
+                <label for="{{ form.ticket_body.id_for_label }}">Klachtomschrijving:</label>
+                {{ form.ticket_body }}
+            </p>
+            <p>
+                <label for="{{ form.ticket_prioriteit.id_for_label }}">Prioriteit:</label>
+                {{ form.ticket_prioriteit }}
+            </p>
+            <p>
+                <label for="{{ form.ticket_status.id_for_label }}">Status:</label>
+                {{ form.ticket_status }}
+            </p>
+
+            <input class="full primary-btn btn-medium" type='submit' value="Aanpassen" />
+            <a href="{% url 'tickets:delete_ticket' object.id %}" class="danger-btn btn-medium link-btn">Verwijderen</a>
+            <input onclick="window.history.back()" class="primary-btn-inv btn-medium" type="button" value="Vorige"/>
+        </form>
+    </div>
+</div>
+
+
+{% else %}
+
+<p>U heeft niet de juiste bevoegdheden om een ticket aan te maken :(</p>
+
+{% endif %}
+
+{% endblock %}

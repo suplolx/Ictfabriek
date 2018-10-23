@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block body %}
+
+{% load staticfiles %}
+
+{% if perms.tickets.delete_ticket %}
+<div class="ticket-form-wrapper">
+
+    <div class="ticket-input block full">
+        <form class="ticket-form block" method="post">
+            {% csrf_token %}
+            <h3 class="full">Ticket verwijderen <span id="id_klant_gegevens"></span></h3>
+            <p>Weet u zeker dat u <strong>{{ object }}</strong> wil verwijderen?</p>
+            <p>Alle opmerkingen en notificaties gaan hierbij verloren. Deze actie kan niet ongedaan gemaakt worden.</p>
+            <input class="full danger-btn btn-large" type='submit' value="Verwijderen" />
+            <input onclick="window.history.back()" class="primary-btn-inv btn-large" type="button" value="Vorige"/>
+        </form>
+
+
+
+    </div>
+</div>
+
+
+{% else %}
+
+<p>U heeft niet de juiste bevoegdheden om een ticket aan te maken :(</p>
+
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block body %}
+
+<div class="overzicht-wrapper">
+    <table class="overzicht-table">
+        <thead>
+            <th>Ticketnummer</th>
+            <th>Merk</th>
+            <th>Onderwerp</th>
+            <th>Klant</th>
+            <th>Datum aangemaakt</th>
+        </thead>
+        <tbody>
+            {% if tickets %}
+                {% for ticket in tickets %}
+                <tr onclick="window.location=&quot;{% url 'tickets:detail' ticket.id %}&quot;">
+                    <td>IF{{ ticket.id }}</td>
+                    <td>{{ ticket.ticket_apparaat.apparaat_merk }}</td>
+                    <td>{{ ticket.ticket_onderwerp }}</td>
+                    <td>{{ ticket.ticket_klant.klant_achternaam }}</td>
+                    <td>{{ ticket.ticket_datum_aangemaakt|date:'Y-m-d H:i' }}</td>
+                </tr>
+                {% endfor %}
+            {% else %}
+
+                <tr>
+                    <td colspan="6">Er zijn geen openstaande tickets.</td>
+                </tr>
+
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+{% if is_paginated %}
+<div class="paginate-wrapper">
+    <ul class="pagination">
+    {% if page_obj.has_previous %}
+      <li><a href="?page={{ page_obj.previous_page_number }}">&laquo;</a></li>
+    {% else %}
+      <li class="disabled"><span>&laquo;</span></li>
+    {% endif %}
+    {% for i in paginator.page_range %}
+      {% if page_obj.number == i %}
+        <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+      {% else %}
+        <li><a href="?page={{ i }}">{{ i }}</a></li>
+      {% endif %}
+    {% endfor %}
+    {% if page_obj.has_next %}
+      <li><a href="?page={{ page_obj.next_page_number }}">&raquo;</a></li>
+    {% else %}
+      <li class="disabled"><span>&raquo;</span></li>
+    {% endif %}
+  </ul>
+</div>
+{% endif %}
+
+{% endblock %}
