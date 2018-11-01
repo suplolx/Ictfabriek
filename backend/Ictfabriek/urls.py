@@ -18,9 +18,18 @@ from django.conf.urls.static import static
 from django.conf import settings
 from django.contrib import admin
 
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
+
 
 urlpatterns = [
     path('', include('tickets.urls')),
     path('tickets/', include('tickets.urls')),
+    path('api/v1/', include('api.urls')),
+    path('api/auth/', include('rest_framework.urls', namespace='rest_framework')),
+    path('api/auth/token/obtain/', TokenObtainPairView.as_view()),
+    path('api/auth/token/refresh/', TokenRefreshView.as_view()), 
     path('admin/', admin.site.urls),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

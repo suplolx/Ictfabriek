@@ -1,27 +1,31 @@
-from django.shortcuts import render, redirect
-from django.views import generic
-from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from django.utils import timezone
-from datetime import timedelta, datetime
+import json
+import operator
+from datetime import datetime, timedelta
 from functools import reduce
 
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.http import JsonResponse, Http404, HttpResponse
-from django.urls import reverse, reverse_lazy
-from django.core import serializers
 from django.contrib import messages
-from django.db.models import Q
-from django.contrib.messages.views import SuccessMessageMixin
-import json, operator
-
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import Group, User
+from django.contrib.messages.views import SuccessMessageMixin
+from django.core import serializers
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from django.db.models import Q
+from django.http import Http404, HttpResponse, JsonResponse
+from django.shortcuts import redirect, render
+from django.urls import reverse, reverse_lazy
+from django.utils import timezone
+from django.views import generic
+from django.views.generic.edit import CreateView, DeleteView, UpdateView
 
-from .models import Ticket, Klant, Opmerking, Notificatie, Apparaat, Factuur, NieuwArtikel
-from .forms import TicketForm, KlantForm, ApparaatForm, UserLogin, UserRegistratie, KlantZoek, OpmerkingenForm, FactuurForm, TicketSearchForm, KlantSearchForm, AntwoordForm, ArtikelForm, ArtikelBoolean
+from .forms import (AntwoordForm, ApparaatForm, ArtikelBoolean, ArtikelForm,
+                    FactuurForm, KlantForm, KlantSearchForm, KlantZoek,
+                    OpmerkingenForm, TicketForm, TicketSearchForm, UserLogin,
+                    UserRegistratie)
+from .models import (Apparaat, Factuur, Klant, NieuwArtikel, Notificatie,
+                     Opmerking, Ticket)
 from .utils import render_to_pdf
-from django.contrib.auth.models import User, Group
 
 
 class IndexView(LoginRequiredMixin, generic.ListView):

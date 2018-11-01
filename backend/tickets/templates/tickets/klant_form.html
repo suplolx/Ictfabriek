@@ -57,37 +57,25 @@
 </div>
 
 <script>
-    const inputNummer = document.getElementById('id_input_nummer');
-    const searchResults = document.getElementById('zoek-resultaten');
+    let inputNummer = document.getElementById('id_input_nummer');
+    let searchResults = document.getElementById('zoek-resultaten');
+    let snelZoekForm = document.getElementById('snel-zoek-form')
 
-    inputNummer.addEventListener('keyup', function(e) {
-      var xhr = new XMLHttpRequest();
-      xhr.open("POST", "{% url 'tickets:zoek_klant' %}");
-      //setting header with csrf token provided by django
-      xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');
-      //selecting form
-      var formElement = document.querySelector('#snel-zoek-form');
-      //sending form data to end point
-      xhr.send(new FormData(formElement));
-      //data.appData
-      xhr.onload = function() {
-          let data = JSON.parse(xhr.responseText);
-          console.log(data);
-          if (data.Code === 2) {
-              searchResults.style.display = 'block';
-              searchResults.innerHTML = ''
-              for (var i in data.klant_array) {
-                searchResults.innerHTML += `
-                    <a class="zoek-klant" href="/tickets/nieuw_ticket/${data.klant_array[i].klant_id}/apparaat/"><h4>Klantnummer: ${data.klant_array[i].klant_id}</h4>
-                    <p>${data.klant_array[i].klant_voornaam} ${data.klant_array[i].klant_achternaam}</p><i style="margin-left:1px;" class="fa fa-arrow-circle-right" aria-hidden="true"></i></a>
-                `
-                }    
-            } else {
-              searchResults.innerHTML = ''
-              searchResults.style.display = 'none';
-          }
-      }
-  });
+    snelZoekForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+    })
+
+    inputNummer.addEventListener('keyup', function() {
+        fetch("http://127.0.0.1:8000/api/v1/klant/?klant_achternaam=" + inputNummer.value + "&format=json")
+          .then(res => res.json())
+          .then(data => {
+              if (data.length === 0) {
+                  searchResults.innerHTML = `<p>Geen resultaten gevonden</p>`
+              } else {
+                  searchResults.innerHTML = `<p>${data[0].klant_voornaam}</p>`
+              }
+          })
+    })
 </script>
 
 {% else %}
