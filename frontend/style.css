@@ -1,0 +1,29 @@
+body {
+    margin:auto;
+    padding:1em;
+}
+
+.container {
+    margin:auto;
+    max-width: 1040px;
+}
+
+.content {
+    overflow: auto;
+}
+
+.ticket-wrapper {
+    display:grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-gap: 10px;
+    margin:10px 0;
+    border-top:1px solid #2f2f2f;
+}
+
+.header, .button-wrapper, .card-content {
+    text-align: center;
+}
+
+.button-wrapper {
+    text-align: center
+}

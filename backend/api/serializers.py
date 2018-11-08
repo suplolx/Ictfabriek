@@ -5,6 +5,8 @@ from tickets.models import (
     Klant, Apparaat, Ticket, Opmerking
 )
 
+from django.utils.timezone import now
+
 
 class KlantSerializer(HyperlinkedModelSerializer):
     
@@ -60,6 +62,7 @@ class TicketSerializer(HyperlinkedModelSerializer):
     auteur_naam = SerializerMethodField()
     auteur_naam_bewerkt = SerializerMethodField()
     klant_naam = SerializerMethodField()
+    dagen = SerializerMethodField()
 
     class Meta:
         model = Ticket
@@ -75,7 +78,8 @@ class TicketSerializer(HyperlinkedModelSerializer):
             'auteur_naam_bewerkt',
             'ticket_klant',
             'ticket_apparaat',
-            'klant_naam'
+            'klant_naam',
+            'dagen',
         )
 
     def get_auteur_naam(self, obj):
@@ -89,6 +93,10 @@ class TicketSerializer(HyperlinkedModelSerializer):
     def get_klant_naam(self, obj):
         if obj.ticket_klant:
             return str(obj.ticket_klant.klant_voornaam) + " " + str(obj.ticket_klant.klant_achternaam)
+
+    def get_dagen(self, obj):
+        if obj.ticket_datum_aangemaakt:
+            return (now() - obj.ticket_datum_aangemaakt).days
 
 
 class UserSerializer(ModelSerializer):

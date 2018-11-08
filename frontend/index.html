@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="style.css">
+    <title>API tester</title>
+</head>
+
+<body>
+    <div class="container"> 
+        <h1>API token tester</h1>
+        <div class="content"></div>
+        <input type="button" id="get-token" value="Get token">
+        <input type="button" id="refresh-token" value="Refresh token">
+        <input type="button" id="delete-token" value="Delete token"> 
+        
+        <div class="ticket-wrapper">
+            <div class="card">
+                <div class="header">
+                    <h2>Klanten</h2>
+                </div>
+                <div class="card-content">
+
+                </div>
+                <div class="button-wrapper">
+                    <input type="button" value="Klant gegevens">
+                </div>
+            </div>
+            <div class="card">
+                <div class="header">
+                    <h2>Apparaten</h2>
+                </div>
+                <div class="card-content">
+
+                </div>
+                <div class="button-wrapper">
+                    <input type="button" value="Apparaat gegevens">
+                </div>
+            </div>
+            <div class="card">
+                <div class="header">
+                    <h2>Tickets</h2>
+                </div>
+                <div class="card-content">
+                    
+                </div>
+                <div class="button-wrapper">
+                    <input type="button" value="Ticket gegevens">
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const cards = document.querySelectorAll(".card");
+        const inputBox = document.querySelector("#input-box");
+        const getTokenButton = document.querySelector("#get-token");
+        const refreshTokenButton = document.querySelector("#refresh-token");
+        let contentField = document.querySelector(".content");
+
+        if (localStorage.getItem("token")) {
+            let tokenData = JSON.parse(localStorage.getItem("token"));
+            let accesssToken = tokenData.access;
+            let refreshToken = tokenData.refresh;
+
+            contentField.innerHTML = `<p>Access token: ${accesssToken}</p> 
+                                      <br>
+                                      <p>Refresh token: ${refreshToken}</p>             
+                `
+            const deleteToken = document.querySelector("#delete-token");
+            
+            deleteToken.addEventListener("click", function() {
+                localStorage.removeItem("token");
+                contentField.innerHTML = "";
+            })
+        }
+
+        refreshTokenButton.addEventListener("click", function() {
+            let tokenData = JSON.parse(localStorage.getItem("token"));
+            fetch("http://127.0.0.1:8000/api/auth/token/refresh/", {
+                method: 'POST',
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body:JSON.stringify({refresh: tokenData.refresh})
+            })
+             .then(res => res.json())
+             .then(data => {
+                contentField.innerHTML = ""
+                tokenData.access = data.access;
+                localStorage.setItem("token", JSON.stringify(tokenData));
+                let accesssToken = tokenData.access;
+                let refreshToken = tokenData.refresh;
+                contentField.innerHTML += `<p>Access token: ${accesssToken}</p> 
+                <br>
+                <p>Refresh token: ${refreshToken}</p>            
+                `
+             })
+        })
+
+        getTokenButton.addEventListener("click", function() {
+            fetch("http://127.0.0.1:8000/api/auth/token/obtain/", {
+                method: 'POST',
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body:JSON.stringify({username: "hans", password: "Welkom01!",})
+            })
+             .then(res => {
+                 console.log(res);
+                 return res.json();
+             })
+             .then(data =>  {
+                if (data.non_field_errors) {
+                    contentField.innerHTML = "";
+                    contentField.innerHTML += `<p>${data.non_field_errors[0]}</p>`
+                } else {
+                    localStorage.setItem("token", JSON.stringify(data));
+                    contentField.innerHTML = ""
+
+                    let tokenData = JSON.parse(localStorage.getItem("token"));
+                    let accesssToken = tokenData.access;
+                    let refreshToken = tokenData.refresh;
+
+                    contentField.innerHTML += `<p>Access token: ${accesssToken}</p> 
+                    <br>
+                    <p>Refresh token: ${refreshToken}</p>            
+                    `
+                }
+                
+             })
+        })
+
+        cards[0].children[2].addEventListener("click", function() {
+            if (localStorage.getItem("token")) {
+                let tokenData = JSON.parse(localStorage.getItem("token"));
+                fetch("http://127.0.0.1:8000/api/v1/klant/", {
+                    method: 'GET',
+                    headers: {
+                        "Accept": "application/json",
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer " + tokenData.access,
+                    }
+                })
+                .then(res => {
+                    console.log(res);
+                    return res.json();
+                })
+                .then(data => {
+                        console.log(data);
+                        cards[0].children[1].innerHTML = "";
+                        if ((data.code) && (data.code === "token_not_valid") ) {
+                            cards[0].children[1].innerHTML += "<p>Token niet geldig of verlopen</p>"
+                        } else {
+                            data.forEach(function(item, index) {
+                                cards[0].children[1].innerHTML += `<p>Naam: ${item.klant_voornaam} ${item.klant_achternaam}</p>
+                                                                <p>Straatnaam + Huisnr: ${item.klant_straatnaam} ${item.klant_huisnummer}</p>`
+                            })
+                        }     
+                })
+                } else {
+                    cards[0].children[1].innerHTML = "";
+                    cards[0].children[1].innerHTML += "<p>Geen token gevonden</p>";
+                }
+        });
+
+    </script>
+</body>
+</html>

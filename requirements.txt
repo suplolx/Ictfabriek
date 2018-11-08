@@ -3,3 +3,4 @@ xhtml2pdf==0.2.3
 djangorestframework==3.8.2
 django-filter==2.0.0
 djangorestframework-simplejwt==3.2.3
+django-cors-headers==2.4.0

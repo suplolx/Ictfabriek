@@ -2,9 +2,14 @@ from django.shortcuts import render
 from rest_framework import viewsets, permissions
 from django_filters.rest_framework import DjangoFilterBackend
 
-from tickets.models import Klant, Apparaat, Ticket, Opmerking
+from tickets.models import (
+    Klant, Apparaat, Ticket, Opmerking
+)
 from django.contrib.auth.models import User
-from .serializers import KlantSerializer, UserSerializer, ApparaatSerializer, TicketSerializer, OpmerkingSerializer
+from .serializers import (
+    KlantSerializer, UserSerializer, ApparaatSerializer, TicketSerializer, OpmerkingSerializer
+)
+
 from .permissions import IsOwnerOrReadOnly
 
 
@@ -12,12 +17,14 @@ class KlantView(viewsets.ModelViewSet):
     queryset = Klant.objects.all()
     serializer_class = KlantSerializer
     filter_backends = (DjangoFilterBackend,)
-    filter_fields = ('klant_achternaam',)
+    filter_fields = ('klant_achternaam', 'klant_voornaam',)
 
 
 class ApparaatView(viewsets.ModelViewSet):
     queryset = Apparaat.objects.all()
     serializer_class = ApparaatSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filter_fields = ('apparaat_merk', 'apparaat_type',)
 
 
 class UserView(viewsets.ModelViewSet):
@@ -29,6 +36,8 @@ class UserView(viewsets.ModelViewSet):
 class TicketView(viewsets.ModelViewSet):
     queryset = Ticket.objects.all()
     serializer_class = TicketSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filter_fields = ('ticket_onderwerp',)
 
 
 class OpmerkingView(viewsets.ModelViewSet):
